@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   // SUPER_ADMIN, EVENT_MANAGER, STAFF
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events         Event[]
+  managedEvents  EventManager[]
+  staffEvents    EventStaff[]
+  scans          Scan[]
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  name        String
+  description String   @default("")
+  startDate   DateTime
+  endDate     DateTime
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator     User           @relation(fields: [createdBy], references: [id])
+  mealSlots   MealSlot[]
+  qrCodes     QRCode[]
+  managers    EventManager[]
+  staff       EventStaff[]
+}
+
+model EventManager {
+  id      String @id @default(uuid())
+  eventId String
+  userId  String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+model EventStaff {
+  id      String @id @default(uuid())
+  eventId String
+  userId  String
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+}
+
+model MealSlot {
+  id        String   @id @default(uuid())
+  eventId   String
+  name      String   // e.g., "Breakfast", "Lunch", "Dinner"
+  date      DateTime
+  startTime String   // HH:mm format
+  endTime   String   // HH:mm format
+  isActive  Boolean  @default(false) // Toggled by Event Manager
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  scans Scan[]
+}
+
+model QRCode {
+  id        String   @id @default(uuid())
+  eventId   String
+  code      String   @unique // The actual QR code value
+  label     String   @default("") // Optional label like "Attendee #1"
+  createdAt DateTime @default(now())
+
+  event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  scans Scan[]
+}
+
+model Scan {
+  id         String   @id @default(uuid())
+  qrCodeId   String
+  mealSlotId String
+  scannedBy  String
+  scannedAt  DateTime @default(now())
+
+  qrCode   QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+  mealSlot MealSlot @relation(fields: [mealSlotId], references: [id], onDelete: Cascade)
+  scanner  User     @relation(fields: [scannedBy], references: [id])
+
+  @@unique([qrCodeId, mealSlotId]) // Each QR can only be scanned once per meal slot
+}
