@@ -6,18 +6,22 @@
   --color-ios-separator: #c6c6c8;
   --color-ios-label: #3c3c43;
   --color-ios-secondary: #8e8e93;
+  --color-ios-tertiary: #aeaeb2;
   --color-ios-blue: #007aff;
   --color-ios-green: #34c759;
   --color-ios-red: #ff3b30;
   --color-ios-orange: #ff9500;
   --color-ios-yellow: #ffcc00;
-  --color-ios-teal: #5ac8fa;
+  --color-ios-teal: #30b0c7;
+  --color-ios-indigo: #5856d6;
+  --color-ios-purple: #af52de;
   --color-ios-grouped-bg: #f2f2f7;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 * {
   -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
 }
 
 html {
@@ -30,12 +34,24 @@ body {
   color: #1c1c1e;
   font-family: var(--font-sans);
   min-height: 100dvh;
+  margin: 0;
+  padding: 0;
 }
 
-/* iOS-style scrollbar */
+/* iOS-style scrollbar - thin on desktop, hidden on mobile */
 ::-webkit-scrollbar {
   width: 0px;
   background: transparent;
+}
+
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 3px;
+  }
 }
 
 /* Safe area support */
@@ -43,14 +59,61 @@ body {
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom);
   }
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
 /* Input styles for iOS feel */
 input, select, textarea {
-  font-size: 17px;
+  font-size: 16px;
   font-family: var(--font-sans);
+  border-radius: 0;
+  -webkit-appearance: none;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none;
+}
+
+/* iOS slide-up animation for sheets */
+@keyframes ios-slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes ios-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ios-scale-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.animate-ios-slide-up {
+  animation: ios-slide-up 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.animate-ios-fade-in {
+  animation: ios-fade-in 0.2s ease-out;
+}
+
+.animate-ios-scale-in {
+  animation: ios-scale-in 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }

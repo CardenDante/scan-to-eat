@@ -2,7 +2,7 @@
 
 import React from "react";
 
-// iOS Settings-style navigation bar
+/* ─── iOS 18 Navigation Bar ─── */
 export function IOSNavBar({
   title,
   subtitle,
@@ -17,24 +17,24 @@ export function IOSNavBar({
   large?: boolean;
 }) {
   return (
-    <div className="sticky top-0 z-50 bg-ios-bg/80 backdrop-blur-xl">
-      <div className="flex items-center justify-between px-4 h-11">
-        <div className="w-20 flex justify-start">{leftButton}</div>
+    <div className="sticky top-0 z-50 bg-ios-bg/80 backdrop-blur-xl border-b border-ios-separator/20">
+      <div className="flex items-center justify-between px-4 h-[44px]">
+        <div className="min-w-[70px] flex justify-start">{leftButton}</div>
         {!large && (
-          <div className="flex-1 text-center">
-            <h1 className="text-[17px] font-semibold truncate">{title}</h1>
+          <div className="flex-1 text-center mx-2 overflow-hidden">
+            <h1 className="text-[17px] font-semibold leading-tight truncate">{title}</h1>
             {subtitle && (
-              <p className="text-[11px] text-ios-secondary">{subtitle}</p>
+              <p className="text-[11px] text-ios-secondary leading-tight">{subtitle}</p>
             )}
           </div>
         )}
-        <div className="w-20 flex justify-end">{rightButton}</div>
+        <div className="min-w-[70px] flex justify-end">{rightButton}</div>
       </div>
       {large && (
-        <div className="px-4 pb-2">
-          <h1 className="text-[34px] font-bold tracking-tight">{title}</h1>
+        <div className="px-4 pb-3 border-t-0">
+          <h1 className="text-[34px] font-bold tracking-[-0.4px] leading-[41px]">{title}</h1>
           {subtitle && (
-            <p className="text-[15px] text-ios-secondary mt-0.5">{subtitle}</p>
+            <p className="text-[15px] text-ios-secondary mt-1">{subtitle}</p>
           )}
         </div>
       )}
@@ -42,7 +42,7 @@ export function IOSNavBar({
   );
 }
 
-// iOS Settings-style grouped section
+/* ─── iOS Settings Grouped Section ─── */
 export function IOSSection({
   header,
   footer,
@@ -53,27 +53,27 @@ export function IOSSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="mb-8">
+    <div className="mb-[35px]">
       {header && (
-        <div className="px-5 pb-1.5">
-          <h3 className="text-[13px] font-normal text-ios-secondary uppercase tracking-wide">
+        <div className="px-[20px] pb-[7px]">
+          <h3 className="text-[13px] font-normal text-ios-secondary uppercase tracking-[-0.08px]">
             {header}
           </h3>
         </div>
       )}
-      <div className="mx-4 bg-ios-card rounded-[10px] overflow-hidden">
+      <div className="mx-[16px] bg-ios-card rounded-[10px] overflow-hidden shadow-[0_0_0_0.5px_rgba(0,0,0,0.04)]">
         {children}
       </div>
       {footer && (
-        <div className="px-5 pt-1.5">
-          <p className="text-[13px] text-ios-secondary">{footer}</p>
+        <div className="px-[20px] pt-[7px]">
+          <p className="text-[13px] text-ios-secondary leading-[18px]">{footer}</p>
         </div>
       )}
     </div>
   );
 }
 
-// iOS Settings-style row
+/* ─── iOS Settings Row ─── */
 export function IOSRow({
   icon,
   iconBg,
@@ -103,37 +103,45 @@ export function IOSRow({
   return (
     <Wrapper
       onClick={onClick}
-      className={`w-full flex items-center px-4 min-h-[44px] py-2.5 ${
-        onClick ? "active:bg-gray-100 md:hover:bg-gray-50 transition-colors cursor-pointer" : ""
-      } ${!last ? "border-b border-ios-separator/30" : ""}`}
+      className={`w-full flex items-center min-h-[44px] text-left ${
+        onClick ? "active:bg-[#d1d1d6]/40 md:hover:bg-[#d1d1d6]/20 transition-colors duration-100 cursor-pointer" : ""
+      }`}
     >
+      {/* Left padding or icon area */}
       {icon && (
-        <div
-          className={`w-[29px] h-[29px] rounded-[6.5px] flex items-center justify-center mr-3 text-white text-[15px] ${
-            iconBg || "bg-ios-blue"
-          }`}
-        >
-          {icon}
+        <div className="pl-[16px] pr-[12px] py-[8px] flex items-center self-stretch">
+          <div
+            className={`w-[29px] h-[29px] rounded-[6px] flex items-center justify-center text-white ${
+              iconBg || "bg-ios-blue"
+            }`}
+          >
+            {icon}
+          </div>
         </div>
       )}
-      <div className="flex-1 flex items-center justify-between min-w-0">
+      {/* Content area with separator */}
+      <div
+        className={`flex-1 flex items-center min-w-0 pr-[16px] py-[11px] min-h-[44px] ${
+          !icon ? "pl-[16px]" : ""
+        } ${!last ? "border-b border-[#c6c6c8]/36" : ""}`}
+      >
         <div className="flex-1 min-w-0">
           <span
-            className={`text-[17px] ${
+            className={`text-[17px] leading-[22px] block ${
               destructive ? "text-ios-red" : "text-[#1c1c1e]"
             }`}
           >
             {label}
           </span>
           {detail && (
-            <p className="text-[13px] text-ios-secondary mt-0.5 truncate">
+            <span className="text-[13px] leading-[18px] text-ios-secondary block mt-[2px]">
               {detail}
-            </p>
+            </span>
           )}
         </div>
-        <div className="flex items-center gap-1.5 ml-2 shrink-0">
+        <div className="flex items-center gap-[6px] ml-[8px] shrink-0">
           {value && (
-            <span className="text-[17px] text-ios-secondary">{value}</span>
+            <span className="text-[17px] leading-[22px] text-ios-secondary">{value}</span>
           )}
           {toggle !== undefined && (
             <button
@@ -141,12 +149,12 @@ export function IOSRow({
                 e.stopPropagation();
                 onToggle?.(!toggle);
               }}
-              className={`relative w-[51px] h-[31px] rounded-full transition-colors duration-200 ${
-                toggle ? "bg-ios-green" : "bg-gray-200"
+              className={`relative w-[51px] h-[31px] rounded-full transition-colors duration-300 ${
+                toggle ? "bg-ios-green" : "bg-[#e9e9ea]"
               }`}
             >
               <div
-                className={`absolute top-[2px] w-[27px] h-[27px] bg-white rounded-full shadow-md transition-transform duration-200 ${
+                className={`absolute top-[2px] w-[27px] h-[27px] bg-white rounded-full shadow-[0_3px_8px_rgba(0,0,0,0.15),0_1px_1px_rgba(0,0,0,0.06)] transition-transform duration-300 ${
                   toggle ? "translate-x-[22px]" : "translate-x-[2px]"
                 }`}
               />
@@ -154,17 +162,13 @@ export function IOSRow({
           )}
           {chevron && (
             <svg
-              className="w-3.5 h-3.5 text-ios-separator"
+              className="w-[7px] h-[13px] text-[#c7c7cc]"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"
+              strokeWidth={3}
+              viewBox="0 0 8 14"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M9 5l7 7-7 7"
-              />
+              <path d="M1 1l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           )}
         </div>
@@ -173,7 +177,7 @@ export function IOSRow({
   );
 }
 
-// iOS-style text field
+/* ─── iOS Text Field ─── */
 export function IOSTextField({
   label,
   value,
@@ -191,25 +195,25 @@ export function IOSTextField({
 }) {
   return (
     <div
-      className={`flex items-center px-4 min-h-[44px] ${
-        !last ? "border-b border-ios-separator/30" : ""
-      }`}
+      className={`flex items-center min-h-[44px]`}
     >
-      <label className="text-[17px] text-[#1c1c1e] w-28 shrink-0">
+      <label className="text-[17px] leading-[22px] text-[#1c1c1e] w-[100px] shrink-0 pl-[16px]">
         {label}
       </label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="flex-1 text-[17px] py-3 bg-transparent text-right placeholder:text-ios-secondary/50"
-      />
+      <div className={`flex-1 pr-[16px] ${!last ? "border-b border-[#c6c6c8]/36" : ""}`}>
+        <input
+          type={type}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          className="w-full text-[17px] leading-[22px] py-[11px] bg-transparent placeholder:text-[#c7c7cc]"
+        />
+      </div>
     </div>
   );
 }
 
-// iOS-style button
+/* ─── iOS Button (like system buttons) ─── */
 export function IOSButton({
   children,
   onClick,
@@ -217,6 +221,7 @@ export function IOSButton({
   disabled = false,
   loading = false,
   fullWidth = true,
+  size = "large",
 }: {
   children: React.ReactNode;
   onClick?: () => void;
@@ -224,23 +229,25 @@ export function IOSButton({
   disabled?: boolean;
   loading?: boolean;
   fullWidth?: boolean;
+  size?: "large" | "small";
 }) {
-  const base = "rounded-[12px] text-[17px] font-semibold py-3.5 px-6 transition-all duration-150 active:scale-[0.98]";
+  const sizeClass = size === "large" ? "py-[14px] px-[20px] text-[17px]" : "py-[8px] px-[16px] text-[15px]";
   const variants = {
-    primary: "bg-ios-blue text-white disabled:opacity-40",
-    secondary: "bg-ios-card text-ios-blue disabled:opacity-40",
-    destructive: "bg-ios-red text-white disabled:opacity-40",
+    primary: "bg-ios-blue text-white active:bg-[#0062cc] disabled:opacity-35",
+    secondary: "bg-ios-blue/10 text-ios-blue active:bg-ios-blue/20 disabled:opacity-35",
+    destructive: "bg-ios-red text-white active:bg-[#d63027] disabled:opacity-35",
   };
   return (
     <button
       onClick={onClick}
       disabled={disabled || loading}
-      className={`${base} ${variants[variant]} ${fullWidth ? "w-full" : ""}`}
+      className={`rounded-[14px] font-semibold leading-[22px] transition-all duration-100 ${sizeClass} ${variants[variant]} ${
+        fullWidth ? "w-full" : ""
+      }`}
     >
       {loading ? (
-        <div className="flex items-center justify-center gap-2">
-          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-          <span>Loading...</span>
+        <div className="flex items-center justify-center gap-[8px]">
+          <div className="w-[20px] h-[20px] border-[2.5px] border-white/30 border-t-white rounded-full animate-spin" />
         </div>
       ) : (
         children
@@ -249,7 +256,7 @@ export function IOSButton({
   );
 }
 
-// iOS-style badge/chip
+/* ─── iOS Badge/Chip ─── */
 export function IOSBadge({
   children,
   color = "blue",
@@ -258,22 +265,22 @@ export function IOSBadge({
   color?: "blue" | "green" | "red" | "orange" | "gray";
 }) {
   const colors = {
-    blue: "bg-ios-blue/10 text-ios-blue",
-    green: "bg-ios-green/10 text-ios-green",
-    red: "bg-ios-red/10 text-ios-red",
-    orange: "bg-ios-orange/10 text-ios-orange",
-    gray: "bg-gray-100 text-ios-secondary",
+    blue: "bg-ios-blue/12 text-ios-blue",
+    green: "bg-ios-green/12 text-ios-green",
+    red: "bg-ios-red/12 text-ios-red",
+    orange: "bg-ios-orange/12 text-ios-orange",
+    gray: "bg-[#e5e5ea] text-ios-secondary",
   };
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-full text-[13px] font-medium ${colors[color]}`}
+      className={`inline-flex items-center px-[8px] py-[3px] rounded-full text-[12px] font-semibold leading-[16px] ${colors[color]}`}
     >
       {children}
     </span>
   );
 }
 
-// iOS-style modal/sheet
+/* ─── iOS Sheet / Modal ─── */
 export function IOSSheet({
   open,
   onClose,
@@ -288,63 +295,55 @@ export function IOSSheet({
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[100]">
+      {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/40 animate-ios-fade-in"
         onClick={onClose}
       />
-      {/* Mobile: bottom sheet / Desktop: centered modal */}
-      <div className="absolute bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:w-[90%] md:rounded-[14px] bg-ios-bg rounded-t-[14px] max-h-[90vh] overflow-auto animate-slide-up md:animate-fade-scale safe-bottom md:shadow-2xl">
-        <div className="sticky top-0 bg-ios-bg/80 backdrop-blur-xl z-10">
-          <div className="flex items-center justify-between p-4">
-            <div className="w-16" />
-            <h2 className="text-[17px] font-semibold">{title}</h2>
+
+      {/* Mobile: bottom sheet */}
+      <div className="md:hidden absolute bottom-0 left-0 right-0 animate-ios-slide-up">
+        <div className="bg-ios-bg rounded-t-[14px] max-h-[85vh] overflow-auto safe-bottom">
+          {/* Handle bar */}
+          <div className="flex justify-center pt-[6px] pb-[2px]">
+            <div className="w-[36px] h-[5px] rounded-full bg-[#c7c7cc]" />
+          </div>
+          <div className="flex items-center justify-between px-[16px] py-[8px]">
             <button
               onClick={onClose}
-              className="w-16 text-right text-ios-blue text-[17px]"
+              className="text-ios-blue text-[17px] min-w-[60px]"
             >
-              Done
+              Cancel
             </button>
+            <h2 className="text-[17px] font-semibold flex-1 text-center">{title}</h2>
+            <div className="min-w-[60px]" />
           </div>
-          <div className="h-px bg-ios-separator/30" />
+          <div className="h-[0.5px] bg-[#c6c6c8]/50" />
+          <div className="px-0 py-[16px]">{children}</div>
         </div>
-        <div className="p-4">{children}</div>
       </div>
-      <style jsx>{`
-        @keyframes slide-up {
-          from {
-            transform: translateY(100%);
-          }
-          to {
-            transform: translateY(0);
-          }
-        }
-        .animate-slide-up {
-          animation: slide-up 0.3s ease-out;
-        }
-        @keyframes fade-scale {
-          from {
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-          }
-        }
-        @media (min-width: 768px) {
-          .animate-fade-scale {
-            animation: fade-scale 0.2s ease-out;
-          }
-          .animate-slide-up {
-            animation: none;
-          }
-        }
-      `}</style>
+
+      {/* Desktop: centered modal */}
+      <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(480px,90vw)] animate-ios-scale-in">
+        <div className="bg-ios-bg rounded-[14px] max-h-[85vh] overflow-auto shadow-[0_25px_50px_rgba(0,0,0,0.25)]">
+          <div className="flex items-center justify-between px-[16px] py-[12px] border-b border-[#c6c6c8]/30">
+            <button
+              onClick={onClose}
+              className="text-ios-blue text-[17px] min-w-[60px]"
+            >
+              Cancel
+            </button>
+            <h2 className="text-[17px] font-semibold flex-1 text-center">{title}</h2>
+            <div className="min-w-[60px]" />
+          </div>
+          <div className="px-0 py-[16px]">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }
 
-// iOS-style empty state
+/* ─── iOS Empty State ─── */
 export function IOSEmptyState({
   icon,
   title,
@@ -357,24 +356,31 @@ export function IOSEmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
-      <div className="text-5xl mb-4 text-ios-secondary/50">{icon}</div>
-      <h3 className="text-[20px] font-semibold text-[#1c1c1e] mb-1">
+    <div className="flex flex-col items-center justify-center py-[60px] px-[32px] text-center">
+      <div className="mb-[16px] text-ios-secondary/40">{icon}</div>
+      <h3 className="text-[20px] font-semibold text-[#1c1c1e] mb-[4px] leading-[25px]">
         {title}
       </h3>
-      <p className="text-[15px] text-ios-secondary mb-6">{description}</p>
+      <p className="text-[15px] text-ios-secondary leading-[20px] mb-[20px] max-w-[280px]">
+        {description}
+      </p>
       {action}
     </div>
   );
 }
 
-// iOS status indicator dot
+/* ─── iOS Status Indicator ─── */
 export function StatusDot({ active }: { active: boolean }) {
   return (
-    <div
-      className={`w-2.5 h-2.5 rounded-full ${
-        active ? "bg-ios-green" : "bg-ios-secondary/30"
-      }`}
-    />
+    <div className="relative">
+      <div
+        className={`w-[10px] h-[10px] rounded-full ${
+          active ? "bg-ios-green" : "bg-[#d1d1d6]"
+        }`}
+      />
+      {active && (
+        <div className="absolute inset-0 w-[10px] h-[10px] rounded-full bg-ios-green animate-ping opacity-40" />
+      )}
+    </div>
   );
 }
