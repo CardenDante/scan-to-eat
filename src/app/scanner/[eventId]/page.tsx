@@ -28,6 +28,56 @@ export default function ScanPage({
   const [cameraError, setCameraError] = useState("");
   const router = useRouter();
 
+  const playTone = useCallback((type: "success" | "error") => {
+    try {
+      const ctx = new AudioContext();
+      const gain = ctx.createGain();
+      gain.connect(ctx.destination);
+      gain.gain.value = 0.3;
+
+      if (type === "success") {
+        // Two-note ascending chime
+        const osc1 = ctx.createOscillator();
+        osc1.type = "sine";
+        osc1.frequency.value = 880; // A5
+        osc1.connect(gain);
+        osc1.start(ctx.currentTime);
+        osc1.stop(ctx.currentTime + 0.12);
+
+        const osc2 = ctx.createOscillator();
+        osc2.type = "sine";
+        osc2.frequency.value = 1320; // E6
+        osc2.connect(gain);
+        osc2.start(ctx.currentTime + 0.12);
+        osc2.stop(ctx.currentTime + 0.25);
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + 0.2);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.25);
+      } else {
+        // Low double buzz
+        const osc = ctx.createOscillator();
+        osc.type = "square";
+        osc.frequency.value = 200;
+        osc.connect(gain);
+        gain.gain.value = 0.15;
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.1);
+
+        const osc2 = ctx.createOscillator();
+        osc2.type = "square";
+        osc2.frequency.value = 150;
+        osc2.connect(gain);
+        osc2.start(ctx.currentTime + 0.15);
+        osc2.stop(ctx.currentTime + 0.3);
+
+        gain.gain.setValueAtTime(0.15, ctx.currentTime + 0.25);
+        gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+      }
+    } catch {
+      // Audio not available
+    }
+  }, []);
+
   const processCode = useCallback(
     async (code: string) => {
       if (scanning) return;
@@ -55,18 +105,20 @@ export default function ScanPage({
         setHistory((prev) => [scanResult, ...prev].slice(0, 50));
         if (res.ok) setScanCount((c) => c + 1);
 
-        // Vibrate on result
+        // Audio and haptic feedback
+        playTone(res.ok ? "success" : "error");
         if (navigator.vibrate) {
           navigator.vibrate(res.ok ? [100] : [100, 50, 100]);
         }
       } catch {
+        playTone("error");
         setResult({ type: "error", message: "Connection error" });
       } finally {
         setScanning(false);
         setManualCode("");
       }
     },
-    [eventId, scanning]
+    [eventId, scanning, playTone]
   );
 
   const startCamera = useCallback(async () => {

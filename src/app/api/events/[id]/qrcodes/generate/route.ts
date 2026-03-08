@@ -10,8 +10,8 @@ export async function POST(
     const { id } = await params;
     const { count = 1, labelPrefix = "Attendee" } = await request.json();
 
-    if (count < 1 || count > 500) {
-      return error("Count must be between 1 and 500");
+    if (count < 1 || count > 10000) {
+      return error("Count must be between 1 and 10,000");
     }
 
     const event = await prisma.event.findUnique({ where: { id } });
@@ -25,14 +25,12 @@ export async function POST(
       label: `${labelPrefix} #${existingCount + i + 1}`,
     }));
 
-    await prisma.qRCode.createMany({ data: codes });
+    // Batch inserts in chunks of 500 to avoid SQLite limits
+    const BATCH_SIZE = 500;
+    for (let i = 0; i < codes.length; i += BATCH_SIZE) {
+      await prisma.qRCode.createMany({ data: codes.slice(i, i + BATCH_SIZE) });
+    }
 
-    const created = await prisma.qRCode.findMany({
-      where: { eventId: id },
-      orderBy: { createdAt: "desc" },
-      take: count,
-    });
-
-    return success({ qrCodes: created }, 201);
+    return success({ generated: count }, 201);
   });
 }

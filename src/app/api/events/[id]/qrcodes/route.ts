@@ -7,6 +7,7 @@ export async function GET(
 ) {
   return withAuth(["SUPER_ADMIN"], async () => {
     const { id } = await params;
+    const event = await prisma.event.findUnique({ where: { id }, select: { name: true } });
     const qrCodes = await prisma.qRCode.findMany({
       where: { eventId: id },
       include: {
@@ -16,6 +17,6 @@ export async function GET(
       },
       orderBy: { createdAt: "asc" },
     });
-    return success({ qrCodes });
+    return success({ qrCodes, eventName: event?.name });
   });
 }

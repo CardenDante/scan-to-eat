@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef, use } from "react";
+import { useState, useEffect, useCallback, use } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
+import JSZip from "jszip";
 import {
   IOSNavBar,
   IOSSection,
@@ -28,19 +29,32 @@ export default function QRCodesPage({
 }) {
   const { id } = use(params);
   const [qrCodes, setQRCodes] = useState<QRCodeData[]>([]);
+  const [eventName, setEventName] = useState("");
   const [loading, setLoading] = useState(true);
   const [showGenerate, setShowGenerate] = useState(false);
   const [showQR, setShowQR] = useState<QRCodeData | null>(null);
   const [count, setCount] = useState("10");
   const [labelPrefix, setLabelPrefix] = useState("Attendee");
   const [generating, setGenerating] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useCallback(
+    (canvas: HTMLCanvasElement | null) => {
+      if (canvas && showQR) {
+        QRCode.toCanvas(canvas, showQR.code, {
+          width: 260,
+          margin: 2,
+          color: { dark: "#1c1c1e", light: "#ffffff" },
+        });
+      }
+    },
+    [showQR]
+  );
   const router = useRouter();
 
   const fetchQRCodes = useCallback(async () => {
     const res = await fetch(`/api/events/${id}/qrcodes`);
     const data = await res.json();
     setQRCodes(data.qrCodes || []);
+    setEventName(data.eventName || "Event");
     setLoading(false);
   }, [id]);
 
@@ -48,17 +62,7 @@ export default function QRCodesPage({
     fetchQRCodes();
   }, [fetchQRCodes]);
 
-  useEffect(() => {
-    if (showQR && canvasRef.current) {
-      QRCode.toCanvas(canvasRef.current, showQR.code, {
-        width: 260,
-        margin: 2,
-        color: { dark: "#1c1c1e", light: "#ffffff" },
-      });
-    }
-  }, [showQR]);
-
-  const handleGenerate = async () => {
+const handleGenerate = async () => {
     setGenerating(true);
     await fetch(`/api/events/${id}/qrcodes/generate`, {
       method: "POST",
@@ -70,18 +74,22 @@ export default function QRCodesPage({
     fetchQRCodes();
   };
 
-  const downloadAllQR = async () => {
-    for (const qr of qrCodes) {
-      const canvas = document.createElement("canvas");
-      await QRCode.toCanvas(canvas, qr.code, {
-        width: 400,
-        margin: 3,
-        color: { dark: "#1c1c1e", light: "#ffffff" },
-      });
+  const [downloading, setDownloading] = useState(false);
 
-      // Add label text
-      const ctx = canvas.getContext("2d");
-      if (ctx) {
+  const downloadAllQR = async () => {
+    setDownloading(true);
+    try {
+      const zip = new JSZip();
+
+      for (const qr of qrCodes) {
+        const canvas = document.createElement("canvas");
+        await QRCode.toCanvas(canvas, qr.code, {
+          width: 400,
+          margin: 3,
+          color: { dark: "#1c1c1e", light: "#ffffff" },
+        });
+
+        // Add label text
         const newCanvas = document.createElement("canvas");
         newCanvas.width = canvas.width;
         newCanvas.height = canvas.height + 50;
@@ -94,11 +102,20 @@ export default function QRCodesPage({
         newCtx.textAlign = "center";
         newCtx.fillText(qr.label, newCanvas.width / 2, canvas.height + 32);
 
-        const link = document.createElement("a");
-        link.download = `${qr.label.replace(/\s+/g, "-")}.png`;
-        link.href = newCanvas.toDataURL();
-        link.click();
+        const blob = await new Promise<Blob>((resolve) =>
+          newCanvas.toBlob((b) => resolve(b!), "image/png")
+        );
+        zip.file(`${qr.label.replace(/\s+/g, "-")}.png`, blob);
       }
+
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const link = document.createElement("a");
+      link.download = `${eventName.replace(/\s+/g, "-")}-QR-Codes.zip`;
+      link.href = URL.createObjectURL(zipBlob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -152,7 +169,7 @@ export default function QRCodesPage({
         ) : (
           <>
             <div className="px-4 mb-4">
-              <IOSButton onClick={downloadAllQR} variant="secondary">
+              <IOSButton onClick={downloadAllQR} variant="secondary" loading={downloading}>
                 Download All ({qrCodes.length})
               </IOSButton>
             </div>

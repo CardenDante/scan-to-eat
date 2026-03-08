@@ -61,6 +61,7 @@ export default function EventDetailPage({
   const [mealDate, setMealDate] = useState("");
   const [mealStart, setMealStart] = useState("");
   const [mealEnd, setMealEnd] = useState("");
+  const [applyToAllDays, setApplyToAllDays] = useState(true);
   const [saving, setSaving] = useState(false);
   const [selectedManagers, setSelectedManagers] = useState<string[]>([]);
   const [selectedStaff, setSelectedStaff] = useState<string[]>([]);
@@ -87,16 +88,18 @@ export default function EventDetailPage({
   }, [fetchEvent, fetchUsers]);
 
   const handleAddMeal = async () => {
-    if (!mealName || !mealDate || !mealStart || !mealEnd) return;
+    if (!mealName || !mealStart || !mealEnd) return;
+    if (!applyToAllDays && !mealDate) return;
     setSaving(true);
     await fetch(`/api/events/${id}/meals`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: mealName,
-        date: mealDate,
+        date: mealDate || undefined,
         startTime: mealStart,
         endTime: mealEnd,
+        applyToAllDays,
       }),
     });
     setShowAddMeal(false);
@@ -104,6 +107,7 @@ export default function EventDetailPage({
     setMealDate("");
     setMealStart("");
     setMealEnd("");
+    setApplyToAllDays(true);
     setSaving(false);
     fetchEvent();
   };
@@ -267,13 +271,21 @@ export default function EventDetailPage({
       <IOSSheet open={showAddMeal} onClose={() => setShowAddMeal(false)} title="Add Meal Slot">
         <IOSSection>
           <IOSTextField label="Name" value={mealName} onChange={setMealName} placeholder="e.g. Breakfast" />
-          <IOSTextField label="Date" value={mealDate} onChange={setMealDate} type="date" />
+          <IOSRow
+            label="All days"
+            detail={`Apply to all ${Math.ceil((new Date(event.endDate).getTime() - new Date(event.startDate).getTime()) / 86400000) + 1} event days`}
+            toggle={applyToAllDays}
+            onToggle={() => setApplyToAllDays(!applyToAllDays)}
+          />
+          {!applyToAllDays && (
+            <IOSTextField label="Date" value={mealDate} onChange={setMealDate} type="date" />
+          )}
           <IOSTextField label="Start" value={mealStart} onChange={setMealStart} type="time" />
           <IOSTextField label="End" value={mealEnd} onChange={setMealEnd} type="time" last />
         </IOSSection>
         <div className="mt-2">
-          <IOSButton onClick={handleAddMeal} loading={saving} disabled={!mealName || !mealDate || !mealStart || !mealEnd}>
-            Add Meal Slot
+          <IOSButton onClick={handleAddMeal} loading={saving} disabled={!mealName || !mealStart || !mealEnd || (!applyToAllDays && !mealDate)}>
+            {applyToAllDays ? "Add to All Days" : "Add Meal Slot"}
           </IOSButton>
         </div>
       </IOSSheet>
