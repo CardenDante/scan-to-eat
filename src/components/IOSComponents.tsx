@@ -104,7 +104,7 @@ export function IOSRow({
     <Wrapper
       onClick={onClick}
       className={`w-full flex items-center px-4 min-h-[44px] py-2.5 ${
-        onClick ? "active:bg-gray-100 transition-colors" : ""
+        onClick ? "active:bg-gray-100 md:hover:bg-gray-50 transition-colors cursor-pointer" : ""
       } ${!last ? "border-b border-ios-separator/30" : ""}`}
     >
       {icon && (
@@ -292,7 +292,8 @@ export function IOSSheet({
         className="absolute inset-0 bg-black/30 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="absolute bottom-0 left-0 right-0 bg-ios-bg rounded-t-[14px] max-h-[90vh] overflow-auto animate-slide-up safe-bottom">
+      {/* Mobile: bottom sheet / Desktop: centered modal */}
+      <div className="absolute bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-lg md:w-[90%] md:rounded-[14px] bg-ios-bg rounded-t-[14px] max-h-[90vh] overflow-auto animate-slide-up md:animate-fade-scale safe-bottom md:shadow-2xl">
         <div className="sticky top-0 bg-ios-bg/80 backdrop-blur-xl z-10">
           <div className="flex items-center justify-between p-4">
             <div className="w-16" />
@@ -319,6 +320,24 @@ export function IOSSheet({
         }
         .animate-slide-up {
           animation: slide-up 0.3s ease-out;
+        }
+        @keyframes fade-scale {
+          from {
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+          }
+        }
+        @media (min-width: 768px) {
+          .animate-fade-scale {
+            animation: fade-scale 0.2s ease-out;
+          }
+          .animate-slide-up {
+            animation: none;
+          }
         }
       `}</style>
     </div>

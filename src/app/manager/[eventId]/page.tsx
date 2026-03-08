@@ -97,7 +97,8 @@ export default function ManagerEventPage({
       />
 
       <div className="pt-2">
-        {/* Overview Stats */}
+        {/* Overview Stats - side by side on desktop */}
+        <div className="md:grid md:grid-cols-2 md:gap-4 md:px-4 md:mb-4">
         <IOSSection header="Overview">
           <IOSRow
             icon={
@@ -121,6 +122,29 @@ export default function ManagerEventPage({
             last
           />
         </IOSSection>
+
+        {/* Attendance Statistics */}
+        <IOSSection header="Attendance Statistics">
+          {stats.mealSlots.map((meal, i) => (
+            <IOSRow
+              key={meal.id}
+              label={meal.name}
+              detail={formatDate(meal.date)}
+              value={
+                <div className="text-right">
+                  <span className="text-[17px] font-semibold text-[#1c1c1e]">
+                    {meal.scannedCount}
+                  </span>
+                  <span className="text-[15px] text-ios-secondary">
+                    /{meal.totalQRCodes}
+                  </span>
+                </div>
+              }
+              last={i === stats.mealSlots.length - 1}
+            />
+          ))}
+        </IOSSection>
+        </div>
 
         {/* Meal Slots - Toggle Control */}
         <IOSSection
@@ -173,27 +197,6 @@ export default function ManagerEventPage({
           )}
         </IOSSection>
 
-        {/* Per-meal stats */}
-        <IOSSection header="Attendance Statistics">
-          {stats.mealSlots.map((meal, i) => (
-            <IOSRow
-              key={meal.id}
-              label={meal.name}
-              detail={formatDate(meal.date)}
-              value={
-                <div className="text-right">
-                  <span className="text-[17px] font-semibold text-[#1c1c1e]">
-                    {meal.scannedCount}
-                  </span>
-                  <span className="text-[15px] text-ios-secondary">
-                    /{meal.totalQRCodes}
-                  </span>
-                </div>
-              }
-              last={i === stats.mealSlots.length - 1}
-            />
-          ))}
-        </IOSSection>
       </div>
     </div>
   );

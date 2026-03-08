@@ -56,9 +56,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-ios-bg flex flex-col">
+    <div className="min-h-dvh bg-ios-bg flex flex-col md:items-center md:justify-center">
+      <div className="md:w-full md:max-w-md">
       {/* Header */}
-      <div className="pt-16 pb-8 text-center px-8">
+      <div className="pt-16 md:pt-8 pb-8 text-center px-8">
         <div className="w-20 h-20 bg-ios-blue rounded-[22px] mx-auto mb-5 flex items-center justify-center shadow-lg">
           <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
@@ -108,6 +109,7 @@ export default function LoginPage() {
             First time? Tap to create the default admin account.
           </p>
         </div>
+      </div>
       </div>
     </div>
   );

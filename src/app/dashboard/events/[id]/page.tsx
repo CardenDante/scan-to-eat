@@ -164,6 +164,8 @@ export default function EventDetailPage({
       />
 
       <div className="pt-2">
+        {/* Top sections in two-column grid on desktop */}
+        <div className="md:grid md:grid-cols-2 md:gap-0">
         {/* Event Info */}
         <IOSSection header="Event Details">
           <IOSRow label="Name" value={event.name} />
@@ -187,6 +189,7 @@ export default function EventDetailPage({
             last
           />
         </IOSSection>
+        </div>
 
         {/* Meal Slots */}
         <IOSSection

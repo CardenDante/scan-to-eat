@@ -154,9 +154,9 @@ export default function ScanPage({
         }
       />
 
-      <div className="pt-2">
+      <div className="pt-2 lg:grid lg:grid-cols-2 lg:gap-6 lg:px-4">
         {/* Camera Scanner */}
-        <div className="mx-4 mb-4">
+        <div className="mx-4 mb-4 lg:mx-0">
           {!cameraActive ? (
             <button
               onClick={startCamera}
@@ -204,9 +204,11 @@ export default function ScanPage({
           )}
         </div>
 
+        {/* Right column on desktop */}
+        <div className="lg:space-y-4">
         {/* Scan Result */}
         {result && (
-          <div className="mx-4 mb-4">
+          <div className="mx-4 mb-4 lg:mx-0">
             <div
               className={`rounded-2xl p-5 ${
                 result.type === "success"
@@ -299,6 +301,7 @@ export default function ScanPage({
             ))}
           </IOSSection>
         )}
+        </div>
       </div>
     </div>
   );
