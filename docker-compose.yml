@@ -1,6 +1,22 @@
-version: "3.8"
-
 services:
+  db:
+    image: postgres:16-alpine
+    container_name: scan2eat_db
+    restart: always
+    environment:
+      POSTGRES_DB: scan2eat
+      POSTGRES_USER: scan2eat
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-scan2eat_secure_pwd_2026}
+    volumes:
+      - scan2eat_pgdata:/var/lib/postgresql/data
+    networks:
+      - default
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U scan2eat"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   app:
     build: .
     container_name: scan2eat_app
@@ -9,14 +25,15 @@ services:
       - "3001:3001"
     env_file:
       - .env
-    volumes:
-      - scan2eat_data:/app/data
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - default
       - stickers_network
 
 volumes:
-  scan2eat_data:
+  scan2eat_pgdata:
 
 networks:
   stickers_network:

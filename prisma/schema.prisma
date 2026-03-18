@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
 }
 
 model User {
@@ -12,14 +12,14 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   // SUPER_ADMIN, EVENT_MANAGER, STAFF
+  role      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  events         Event[]
-  managedEvents  EventManager[]
-  staffEvents    EventStaff[]
-  scans          Scan[]
+  events        Event[]
+  managedEvents EventManager[]
+  staffEvents   EventStaff[]
+  scans         Scan[]
 }
 
 model Event {
@@ -32,11 +32,11 @@ model Event {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  creator     User           @relation(fields: [createdBy], references: [id])
-  mealSlots   MealSlot[]
-  qrCodes     QRCode[]
-  managers    EventManager[]
-  staff       EventStaff[]
+  creator   User           @relation(fields: [createdBy], references: [id])
+  mealSlots MealSlot[]
+  qrCodes   QRCode[]
+  managers  EventManager[]
+  staff     EventStaff[]
 }
 
 model EventManager {
@@ -64,27 +64,33 @@ model EventStaff {
 model MealSlot {
   id        String   @id @default(uuid())
   eventId   String
-  name      String   // e.g., "Breakfast", "Lunch", "Dinner"
+  name      String
   date      DateTime
-  startTime String   // HH:mm format
-  endTime   String   // HH:mm format
-  isActive  Boolean  @default(false) // Toggled by Event Manager
+  startTime String
+  endTime   String
+  isActive  Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   scans Scan[]
+
+  @@index([eventId, isActive])
+  @@index([eventId])
 }
 
 model QRCode {
   id        String   @id @default(uuid())
   eventId   String
-  code      String   @unique // The actual QR code value
-  label     String   @default("") // Optional label like "Attendee #1"
+  code      String   @unique
+  label     String   @default("")
   createdAt DateTime @default(now())
 
   event Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
   scans Scan[]
+
+  @@index([eventId])
+  @@index([code, eventId])
 }
 
 model Scan {
@@ -98,5 +104,8 @@ model Scan {
   mealSlot MealSlot @relation(fields: [mealSlotId], references: [id], onDelete: Cascade)
   scanner  User     @relation(fields: [scannedBy], references: [id])
 
-  @@unique([qrCodeId, mealSlotId]) // Each QR can only be scanned once per meal slot
+  @@unique([qrCodeId, mealSlotId])
+  @@index([mealSlotId])
+  @@index([scannedAt])
+  @@index([scannedBy])
 }
