@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, use } from "react";
+import { useState, useEffect, useCallback, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import JSZip from "jszip";
@@ -75,6 +75,8 @@ const handleGenerate = async () => {
   };
 
   const [downloading, setDownloading] = useState(false);
+  const [downloadingCSV, setDownloadingCSV] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const downloadAllQR = async () => {
     setDownloading(true);
@@ -116,6 +118,25 @@ const handleGenerate = async () => {
       URL.revokeObjectURL(link.href);
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const downloadCSV = () => {
+    setDownloadingCSV(true);
+    try {
+      const rows = [["Label", "Code"]];
+      for (const qr of qrCodes) {
+        rows.push([qr.label, qr.code]);
+      }
+      const csv = rows.map((r) => r.map((c) => `"${c}"`).join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.download = `${eventName.replace(/\s+/g, "-")}-QR-Codes.csv`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } finally {
+      setDownloadingCSV(false);
     }
   };
 
@@ -168,9 +189,12 @@ const handleGenerate = async () => {
           />
         ) : (
           <>
-            <div className="px-4 mb-4">
+            <div className="px-4 mb-4 flex gap-2">
               <IOSButton onClick={downloadAllQR} variant="secondary" loading={downloading}>
                 Download All ({qrCodes.length})
+              </IOSButton>
+              <IOSButton onClick={downloadCSV} variant="secondary" loading={downloadingCSV}>
+                Download CSV
               </IOSButton>
             </div>
             <IOSSection header={`${qrCodes.length} QR Codes`}>
@@ -230,7 +254,25 @@ const handleGenerate = async () => {
               <canvas ref={canvasRef} />
             </div>
             <p className="text-[20px] font-semibold mt-4">{showQR.label}</p>
-            <p className="text-[13px] text-ios-secondary mt-1 font-mono">{showQR.code}</p>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(showQR.code);
+                setCopiedId(showQR.id);
+                setTimeout(() => setCopiedId(null), 2000);
+              }}
+              className="flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full active:opacity-60 transition-opacity"
+            >
+              <span className="text-[13px] text-ios-secondary font-mono">{showQR.code}</span>
+              {copiedId === showQR.id ? (
+                <svg className="w-4 h-4 text-ios-green shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4 text-ios-blue shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              )}
+            </button>
             {showQR.scans.length > 0 && (
               <div className="w-full mt-6">
                 <IOSSection header="Scan History">
